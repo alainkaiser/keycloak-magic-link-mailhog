@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: quay.io/phasetwo/phasetwo-keycloak:latest
+    ports:
+      - '8080:8080'
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      JAVA_OPTS: '-Dkeycloak.profile.feature.email.enabled=true'
+    depends_on:
+      - mailhog
+    networks:
+      - keycloak-network
+    entrypoint:
+      [
+        '/opt/keycloak/bin/kc.sh',
+        'start-dev',
+        '--spi-email-template-provider=freemarker-plus-mustache',
+        '--spi-email-template-freemarker-plus-mustache-enabled=true',
+      ]
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+    networks:
+      - keycloak-network
+
+networks:
+  keycloak-network:
